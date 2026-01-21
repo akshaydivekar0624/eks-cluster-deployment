@@ -1,9 +1,21 @@
-data "aws_subnets" "available-subnets"{
-    filter {
-        name = "tag:Name"
-        values = ["Our-Public-*"]
-    }
+data "aws_subnets" "available-subnets" {
+  filter {
+    name   = "default-for-az"
+    values = ["true"]
+  }
+
+  filter {
+    name   = "availability-zone"
+    values = [
+      "us-east-1a",
+      "us-east-1b",
+      "us-east-1c",
+      "us-east-1d",
+      "us-east-1f"
+    ]
+  }
 }
+
 
 resource "aws_eks_cluster" "project-cluster" {
   name     = "project-cluster"
@@ -36,7 +48,7 @@ resource "aws_eks_node_group" "node-grp" {
   subnet_ids      = data.aws_subnets.available-subnets.ids
   capacity_type   = "ON_DEMAND"
   disk_size       = "20"
-  instance_types  = ["c7i-flex.large"]
+  instance_types  = ["t3.small"]
   labels = tomap({ env = "dev" })
 
   scaling_config {
